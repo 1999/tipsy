@@ -13,6 +13,13 @@
 	</style>
 
 	<script type="text/javascript" src="./javascripts/tipsy.js"></script>
+	<script type="text/javascript">
+	document.body.addEventListener("mouseover", function(e) {
+		if (e.target.dataset["title"] !== undefined) {
+			e.target.tipsy();
+		}
+	});
+	</script>
 </head>
 <body>
 
