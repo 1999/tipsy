@@ -3,6 +3,17 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
+HTMLElement.prototype.tipsy = function() {
+	var title = this.dataset["title"],
+		gravity = this.dataset["gravity"];
+	
+	if (title === undefined || gravity === undefined) {
+		throw new Error("No title/gravity required dataset items set");
+	}
+	
+	// show tipsy tooptip!
+};
+
 (function($) {
     
     function maybeCall(thing, ctx) {
