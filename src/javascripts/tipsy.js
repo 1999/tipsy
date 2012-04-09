@@ -3,8 +3,6 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-// TODO copyright :)
-
 /*jslint browser: true, vars: true, maxerr: 50, indent: 4 */
 /*global HTMLElement: false */
 HTMLElement.prototype.tipsy = function () {
