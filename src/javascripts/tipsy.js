@@ -3,11 +3,18 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
+// TODO check for dataset in chrome15
+// TODO check for addEventListener behavior in Fx/Opera (binding the same function, dispatching event)
+// TODO jslint
+// TODO copyright :)
+
 HTMLElement.prototype.tipsy = function() {
-	var listener = function(e) {
-		var originalTitle = e.target.getAttribute("title"),
-			tooltipText = e.target.dataset["title"] || originalTitle,
-			gravity = e.target.dataset["gravity"],
+	var stopPropagationNeeded = (this !== document.body);
+
+	var listener = function(evt) {
+		var originalTitle = evt.target.getAttribute("title"),
+			tooltipText = evt.target.dataset["title"] || originalTitle,
+			gravity = evt.target.dataset["gravity"],
 			tenPercentWidth = window.innerWidth / 10,
 			tenPercentHeight = window.innerHeight / 10,
 			tipCalcCoords = [],
@@ -20,11 +27,11 @@ HTMLElement.prototype.tipsy = function() {
 			return true;
 		}
 
-		if (e.type === "mouseover") {
+		if (evt.type === "mouseover") {
 			// convert title attribute to dataset property
 			if (originalTitle !== null) {
-				e.target.removeAttribute("title");
-				e.target.dataset["title"] = tooltipText;
+				evt.target.removeAttribute("title");
+				evt.target.dataset["title"] = tooltipText;
 			}
 
 			// create tooltip
@@ -41,7 +48,7 @@ HTMLElement.prototype.tipsy = function() {
 			pageScrollY = (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop);
 
 			// calculate element coords
-			elemBox = e.target.getBoundingClientRect();
+			elemBox = evt.target.getBoundingClientRect();
 			elemBoxTop = elemBox.top + pageScrollY;
 			elemBoxLeft = elemBox.left + pageScrollX;
 			tipWidth = tip.offsetWidth;
@@ -141,14 +148,12 @@ HTMLElement.prototype.tipsy = function() {
 
 			document.body.removeChild(tip);
 		}
+
+		if (stopPropagationNeeded) {
+			evt.stopPropagation();
+		}
 	};
 
-	// TODO one bind
-	// TODO stop propagation if not document.body
-
-	this.removeEventListener("mouseover", listener, false);
 	this.addEventListener("mouseover", listener, false);
-
-	this.removeEventListener("mouseout", listener, false);
 	this.addEventListener("mouseout", listener, false);
 };
