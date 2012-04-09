@@ -53,3 +53,8 @@ Please refer to the docs directory for more examples and documentation.
 By forking this project you hereby grant permission for any commits to your fork to be
 merged back into this repository and, with attribution, be released under the terms of
 the MIT License.
+
+##
+
+https://developer.mozilla.org/en/DOM/element.dataset - fx6, opera 11
+https://developer.mozilla.org/en/DOM/element.classList - fx4, opera 11.50
