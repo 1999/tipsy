@@ -1,24 +1,32 @@
-// tipsy, facebook style tooltips for jquery
+// tipsy, facebook style tooltips
 // version 1.0.0a
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-// TODO jslint
 // TODO copyright :)
 
-HTMLElement.prototype.tipsy = function() {
-	var stopPropagationNeeded = (this !== document.body);
+/*jslint browser: true, vars: true, maxerr: 50, indent: 4 */
+/*global HTMLElement: false */
+HTMLElement.prototype.tipsy = function () {
+	"use strict";
 
-	var listener = function(evt) {
+	var stopPropagationNeeded = (this !== document.body);
+	var listener = function (evt) {
 		var originalTitle = evt.target.getAttribute("title"),
 			tooltipText = evt.target.dataset.title || originalTitle || "", // chrome15 and older returns an empty string for non-existing dataset property
 			gravity = evt.target.dataset.gravity || "",
 			tenPercentWidth = window.innerWidth / 10,
 			tenPercentHeight = window.innerHeight / 10,
 			tipCalcCoords = [],
-			tip, elemBox, elemBoxTop, elemBoxLeft,
-			pageScrollX, pageScrollY,
-			tipWidth, tipHeight, tp;
+			tip,
+			elemBox,
+			elemBoxTop,
+			elemBoxLeft,
+			pageScrollX,
+			pageScrollY,
+			tipWidth,
+			tipHeight,
+			tp;
 
 		// check for element's "title" attribute or dataset property	
 		if (tooltipText.length === 0) {
@@ -29,14 +37,14 @@ HTMLElement.prototype.tipsy = function() {
 			// convert title attribute to dataset property
 			if (originalTitle !== null) {
 				evt.target.removeAttribute("title");
-				evt.target.dataset["title"] = tooltipText;
+				evt.target.dataset.title = tooltipText;
 			}
 
 			// create tooltip
 			tip = document.createElement("div");
 			tip.classList.add("tipsy");
 			tip.innerHTML = "<div class='tipsy-arrow'></div><div class='tipsy-inner'></div>";
-			
+
 			tip.lastChild.innerText = tooltipText;
 			tip.classList.add("hidden");
 			document.body.appendChild(tip);
@@ -84,40 +92,40 @@ HTMLElement.prototype.tipsy = function() {
 
 			// calculate tip coords
 			switch (gravity.charAt(0)) {
-				case "n" :
-					tp = {
-						top: elemBoxTop + elemBox.height,
-						left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
-					};
+			case "n":
+				tp = {
+					top: elemBoxTop + elemBox.height,
+					left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
+				};
 
-					break;
+				break;
 
-				case "s" :
-					tp = {
-						top: elemBoxTop - tipHeight,
-						left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
-					};
+			case "s":
+				tp = {
+					top: elemBoxTop - tipHeight,
+					left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
+				};
 
-					break;
+				break;
 
-				case "e" :
-					tp = {
-						top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
-						left: elemBoxLeft - tipWidth
-					};
+			case "e":
+				tp = {
+					top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
+					left: elemBoxLeft - tipWidth
+				};
 
-					break;
+				break;
 
-				case "w" :
-					tp = {
-						top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
-						left: elemBoxLeft + elemBox.width
-					};
+			case "w":
+				tp = {
+					top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
+					left: elemBoxLeft + elemBox.width
+				};
 
-					break;
+				break;
 			}
-			
-			if (gravity.length == 2) {
+
+			if (gravity.length === 2) {
 				if (gravity.charAt(1) === "w") {
 					tp.left = elemBoxLeft + elemBox.width / 2 - 15;
 				} else {
