@@ -16,6 +16,10 @@ It's used by Twitter, Github, Slideshare and Bitbucket, amongst others.
 **tipsy (jquery-free)** is its *jquery-free fork*, made specially for modern browsers (tested on Fx6 and later, Chrome15 and later).
 You can use it in your chrome web store apps, mozilla marketplace apps etc. And there's no need in jQuery.
 
+## Maybe some screenshots of this?
+
+<img src="http://i.imgur.com/csYRE.png">
+
 ## Source:
 
 Original jquery-tipsy package is hosted here:
