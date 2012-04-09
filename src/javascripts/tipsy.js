@@ -3,8 +3,6 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-// TODO check for dataset in chrome15
-// TODO check for addEventListener behavior in Fx/Opera (binding the same function, dispatching event)
 // TODO jslint
 // TODO copyright :)
 
@@ -13,8 +11,8 @@ HTMLElement.prototype.tipsy = function() {
 
 	var listener = function(evt) {
 		var originalTitle = evt.target.getAttribute("title"),
-			tooltipText = evt.target.dataset["title"] || originalTitle,
-			gravity = evt.target.dataset["gravity"],
+			tooltipText = evt.target.dataset.title || originalTitle || "", // chrome15 and older returns an empty string for non-existing dataset property
+			gravity = evt.target.dataset.gravity || "",
 			tenPercentWidth = window.innerWidth / 10,
 			tenPercentHeight = window.innerHeight / 10,
 			tipCalcCoords = [],
@@ -23,7 +21,7 @@ HTMLElement.prototype.tipsy = function() {
 			tipWidth, tipHeight, tp;
 
 		// check for element's "title" attribute or dataset property	
-		if (tooltipText === null) {
+		if (tooltipText.length === 0) {
 			return true;
 		}
 
@@ -55,9 +53,7 @@ HTMLElement.prototype.tipsy = function() {
 			tipHeight = tip.offsetHeight;
 
 			// set tip type if empty
-			if (gravity === undefined) {
-				gravity = "";
-
+			if (gravity.length === 0) {
 				// calculate Y-position
 				tipCalcCoords = [pageScrollY + window.innerHeight / 2];
 				tipCalcCoords[1] = tipCalcCoords[0] + tenPercentHeight / 2;
