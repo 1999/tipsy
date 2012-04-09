@@ -8,7 +8,11 @@ HTMLElement.prototype.tipsy = function() {
 		var originalTitle = e.target.getAttribute("title"),
 			tooltipText = e.target.dataset["title"] || originalTitle,
 			gravity = e.target.dataset["gravity"],
-			tip, elemBox,
+			tenPercentWidth = window.innerWidth / 10,
+			tenPercentHeight = window.innerHeight / 10,
+			tipCalcCoords = [],
+			tip, elemBox, elemBoxTop, elemBoxLeft,
+			pageScrollX, pageScrollY,
 			tipWidth, tipHeight, tp;
 
 		// check for element's "title" attribute or dataset property	
@@ -32,40 +36,79 @@ HTMLElement.prototype.tipsy = function() {
 			tip.classList.add("hidden");
 			document.body.appendChild(tip);
 
+			// calculate page offsets
+			pageScrollX = (window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft);
+			pageScrollY = (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop);
+
+			// calculate element coords
 			elemBox = e.target.getBoundingClientRect();
+			elemBoxTop = elemBox.top + pageScrollY;
+			elemBoxLeft = elemBox.left + pageScrollX;
 			tipWidth = tip.offsetWidth;
 			tipHeight = tip.offsetHeight;
 
-			// calculate tip type
+			// set tip type if empty
+			if (gravity === undefined) {
+				gravity = "";
+
+				// calculate Y-position
+				tipCalcCoords = [pageScrollY + window.innerHeight / 2];
+				tipCalcCoords[1] = tipCalcCoords[0] + tenPercentHeight / 2;
+				tipCalcCoords[0] -= tenPercentHeight / 2;
+
+				if (elemBoxTop < tipCalcCoords[0]) {
+					gravity += "n";
+				} else if (elemBoxTop > tipCalcCoords[1]) {
+					gravity += "s";
+				}
+
+				// calculate X-position
+				tipCalcCoords = [pageScrollX + window.innerWidth / 2];
+				tipCalcCoords[1] = tipCalcCoords[0] + tenPercentWidth / 2;
+				tipCalcCoords[0] -= tenPercentWidth / 2;
+
+				if (elemBoxLeft < tipCalcCoords[0]) {
+					gravity += "w";
+				} else if (elemBoxLeft > tipCalcCoords[1]) {
+					gravity += "e";
+				}
+
+				// screen-centered element
+				if (gravity.length === 0) {
+					gravity = "nw";
+				}
+			}
+
+			// calculate tip coords
 			switch (gravity.charAt(0)) {
 				case "n" :
 					tp = {
-						top: elemBox.top + elemBox.height,
-						left: elemBox.left + elemBox.width / 2 - tipWidth / 2
+						top: elemBoxTop + elemBox.height,
+						left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
 					};
 
 					break;
 
 				case "s" :
 					tp = {
-						top: elemBox.top - tipHeight,
-						left: elemBox.left + elemBox.width / 2 - tipWidth / 2
+						top: elemBoxTop - tipHeight,
+						left: elemBoxLeft + elemBox.width / 2 - tipWidth / 2
 					};
 
 					break;
 
 				case "e" :
 					tp = {
-						top: elemBox.top + elemBox.height / 2 - tipHeight / 2,
-						left: elemBox.left - tipWidth
+						top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
+						left: elemBoxLeft - tipWidth
 					};
 
 					break;
 
 				case "w" :
 					tp = {
-						top: elemBox.top + elemBox.height / 2 - tipHeight / 2,
-						left: elemBox.left + elemBox.width
+						top: elemBoxTop + elemBox.height / 2 - tipHeight / 2,
+						left: elemBoxLeft + elemBox.width
 					};
 
 					break;
@@ -73,9 +116,9 @@ HTMLElement.prototype.tipsy = function() {
 			
 			if (gravity.length == 2) {
 				if (gravity.charAt(1) === "w") {
-					tp.left = elemBox.left + elemBox.width / 2 - 15;
+					tp.left = elemBoxLeft + elemBox.width / 2 - 15;
 				} else {
-					tp.left = elemBox.left + elemBox.width / 2 - tipWidth + 15;
+					tp.left = elemBoxLeft + elemBox.width / 2 - tipWidth + 15;
 				}
 			}
 
@@ -87,7 +130,7 @@ HTMLElement.prototype.tipsy = function() {
 			// set tip arrow style
 			tip.firstChild.classList.add("tipsy-arrow-" + gravity.charAt(0));
 
-			// show tooltip!
+			// finally show tooltip
 			tip.classList.remove("hidden");
 		} else {
 			// remove tooltip from DOM
@@ -109,233 +152,3 @@ HTMLElement.prototype.tipsy = function() {
 	this.removeEventListener("mouseout", listener, false);
 	this.addEventListener("mouseout", listener, false);
 };
-
-(function($) {
-	return;
-	
-	function maybeCall(thing, ctx) {
-		return (typeof thing == 'function') ? (thing.call(ctx)) : thing;
-	};
-	
-	function Tipsy(element, options) {
-		this.$element = $(element);
-		this.options = options;
-		this.enabled = true;
-		this.fixTitle();
-	};
-	
-	Tipsy.prototype = {
-		show: function() {
-			var title = this.getTitle();
-			if (title && this.enabled) {
-				var $tip = this.tip();
-				
-				$tip.find('.tipsy-inner')[this.options.html ? 'html' : 'text'](title);
-				$tip[0].className = 'tipsy'; // reset classname in case of dynamic gravity
-				$tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).prependTo(document.body);
-				
-				var pos = $.extend({}, this.$element.offset(), {
-					width: this.$element[0].offsetWidth,
-					height: this.$element[0].offsetHeight
-				});
-				
-				var actualWidth = $tip[0].offsetWidth,
-					actualHeight = $tip[0].offsetHeight,
-					gravity = maybeCall(this.options.gravity, this.$element[0]);
-				
-				var tp;
-				switch (gravity.charAt(0)) {
-					case 'n':
-						tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
-						break;
-					case 's':
-						tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
-						break;
-					case 'e':
-						tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - this.options.offset};
-						break;
-					case 'w':
-						tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + this.options.offset};
-						break;
-				}
-				
-				if (gravity.length == 2) {
-					if (gravity.charAt(1) == 'w') {
-						tp.left = pos.left + pos.width / 2 - 15;
-					} else {
-						tp.left = pos.left + pos.width / 2 - actualWidth + 15;
-					}
-				}
-				
-				$tip.css(tp).addClass('tipsy-' + gravity);
-				$tip.find('.tipsy-arrow')[0].className = 'tipsy-arrow tipsy-arrow-' + gravity.charAt(0);
-				if (this.options.className) {
-					$tip.addClass(maybeCall(this.options.className, this.$element[0]));
-				}
-				
-				if (this.options.fade) {
-					$tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
-				} else {
-					$tip.css({visibility: 'visible', opacity: this.options.opacity});
-				}
-			}
-		},
-		
-		fixTitle: function() {
-			var $e = this.$element;
-			if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
-				$e.attr('original-title', $e.attr('title') || '').removeAttr('title');
-			}
-		},
-		
-		getTitle: function() {
-			var title, $e = this.$element, o = this.options;
-			this.fixTitle();
-			var title, o = this.options;
-			if (typeof o.title == 'string') {
-				title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
-			} else if (typeof o.title == 'function') {
-				title = o.title.call($e[0]);
-			}
-			title = ('' + title).replace(/(^\s*|\s*$)/, "");
-			return title || o.fallback;
-		},
-		
-		tip: function() {
-			if (!this.$tip) {
-				this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>');
-			}
-			return this.$tip;
-		},
-		
-		validate: function() {
-			if (!this.$element[0].parentNode) {
-				this.hide();
-				this.$element = null;
-				this.options = null;
-			}
-		},
-		
-		enable: function() { this.enabled = true; },
-		disable: function() { this.enabled = false; },
-		toggleEnabled: function() { this.enabled = !this.enabled; }
-	};
-	
-	$.fn.tipsy = function(options) {
-		
-		if (options === true) {
-			return this.data('tipsy');
-		} else if (typeof options == 'string') {
-			var tipsy = this.data('tipsy');
-			if (tipsy) tipsy[options]();
-			return this;
-		}
-		
-		options = $.extend({}, $.fn.tipsy.defaults, options);
-		
-		function get(ele) {
-			var tipsy = $.data(ele, 'tipsy');
-			if (!tipsy) {
-				tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
-				$.data(ele, 'tipsy', tipsy);
-			}
-			return tipsy;
-		}
-		
-		function enter() {
-			var tipsy = get(this);
-			tipsy.hoverState = 'in';
-			if (options.delayIn == 0) {
-				tipsy.show();
-			} else {
-				tipsy.fixTitle();
-				setTimeout(function() { if (tipsy.hoverState == 'in') tipsy.show(); }, options.delayIn);
-			}
-		};
-		
-		function leave() {
-			var tipsy = get(this);
-			tipsy.hoverState = 'out';
-			if (options.delayOut == 0) {
-				tipsy.hide();
-			} else {
-				setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut);
-			}
-		};
-		
-		if (!options.live) this.each(function() { get(this); });
-		
-		if (options.trigger != 'manual') {
-			var binder   = options.live ? 'live' : 'bind',
-				eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
-				eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
-			this[binder](eventIn, enter)[binder](eventOut, leave);
-		}
-		
-		return this;
-		
-	};
-	
-	$.fn.tipsy.defaults = {
-		className: null,
-		delayIn: 0,
-		delayOut: 0,
-		fade: false,
-		fallback: '',
-		gravity: 'n',
-		html: false,
-		live: false,
-		offset: 0,
-		opacity: 0.8,
-		title: 'title',
-		trigger: 'hover'
-	};
-	
-	// Overwrite this method to provide options on a per-element basis.
-	// For example, you could store the gravity in a 'tipsy-gravity' attribute:
-	// return $.extend({}, options, {gravity: $(ele).attr('tipsy-gravity') || 'n' });
-	// (remember - do not modify 'options' in place!)
-	$.fn.tipsy.elementOptions = function(ele, options) {
-		return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
-	};
-	
-	$.fn.tipsy.autoNS = function() {
-		return $(this).offset().top > ($(document).scrollTop() + $(window).height() / 2) ? 's' : 'n';
-	};
-	
-	$.fn.tipsy.autoWE = function() {
-		return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'e' : 'w';
-	};
-	
-	/**
-	 * yields a closure of the supplied parameters, producing a function that takes
-	 * no arguments and is suitable for use as an autogravity function like so:
-	 *
-	 * @param margin (int) - distance from the viewable region edge that an
-	 *        element should be before setting its tooltip's gravity to be away
-	 *        from that edge.
-	 * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
-	 *        if there are no viewable region edges effecting the tooltip's
-	 *        gravity. It will try to vary from this minimally, for example,
-	 *        if 'sw' is preferred and an element is near the right viewable 
-	 *        region edge, but not the top edge, it will set the gravity for
-	 *        that element's tooltip to be 'se', preserving the southern
-	 *        component.
-	 */
-	 $.fn.tipsy.autoBounds = function(margin, prefer) {
-		return function() {
-			var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
-				boundTop = $(document).scrollTop() + margin,
-				boundLeft = $(document).scrollLeft() + margin,
-				$this = $(this);
-
-			if ($this.offset().top < boundTop) dir.ns = 'n';
-			if ($this.offset().left < boundLeft) dir.ew = 'w';
-			if ($(window).width() + $(document).scrollLeft() - $this.offset().left < margin) dir.ew = 'e';
-			if ($(window).height() + $(document).scrollTop() - $this.offset().top < margin) dir.ns = 's';
-
-			return dir.ns + (dir.ew ? dir.ew : '');
-		}
-	};
-	
-})();
