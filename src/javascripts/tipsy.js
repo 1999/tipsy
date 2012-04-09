@@ -157,5 +157,6 @@ HTMLElement.prototype.tipsy = function () {
 	};
 
 	this.addEventListener("mouseover", listener, false);
+	this.addEventListener("click", listener, false); // web apps change the page content without reload so this is really needed
 	this.addEventListener("mouseout", listener, false);
 };
