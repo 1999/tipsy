@@ -1,60 +1,58 @@
-# tipsy
+# tipsy (jquery-free)
 
-Facebook-style tooltip plugin for jQuery
+Facebook-style tooltip plugin, jQuery-free
 
-(c) 2008-2010 Jason Frame (jason@onehackoranother.com)
+(c) 2008-2010 Jason Frame (jason@onehackoranother.com) - original plugin source code
+(c) 2012 Dmitry Sorin (staypositive.ru) - jquery-free fork for modern web apps
 
 Released under The MIT License.
 
 ## Description:
 
 tipsy is a simple jQuery plugin for generating Facebook-style tooltips.
-
 It's used by Twitter, Github, Slideshare and Bitbucket, amongst others.
 
-## Homepage:
-
-http://onehackoranother.com/projects/jquery/tipsy
+tipsy (jquery-free) is its fork, made specially for modern browsers (tested on Fx6 and later, Chrome15 and later).
+You can use it in your chrome web store apps, mozilla marketplace apps etc. And there's no need in jQuery.
 
 ## Source:
 
-Hosted at GitHub; browse at:
+Original jquery-tipsy package is hosted here:
 
   http://github.com/jaz303/tipsy/tree/master
 
-Or clone from:
+jQuery-free tipsy fork is hosted here:
 
-    git://github.com/jaz303/tipsy.git
+  http://github.com/1999/tipsy/tree/master
 
 ## Usage:
 
-1. Copy the contents of src/{images,javascripts,stylesheets} to the corresponding asset directories in your project. 
-   If the relative path of your images directory from your stylesheets   directory is not "../images", you'll need to adjust tipsy.css appropriately.
+1. Copy the contents of src/{javascripts,stylesheets} to the corresponding asset directories in your project. 
 
 2. Insert the neccesary elements in your document's `<head>` section, e.g.:
    
-        <script type='text/javascript' src='/javascripts/jquery.tipsy.js'></script>
+        <script type='text/javascript' src='/javascripts/tipsy.js'></script>
         <link rel="stylesheet" href="/stylesheets/tipsy.css" type="text/css" />
 
- Remember to include jquery.tipsy.js *after* including the main jQuery library.
-
-3. Initialise Tipsy in your document.onload, e.g.:
+3. Initialise Tipsy after DOMContentLoaded event, e.g.:
 
         <script type='text/javascript'>
-         $(function() {
-	       $('a[rel=tipsy]').tipsy({fade: true, gravity: 'n'});
-	     });
+        window.addEventListener("DOMContentLoaded", function() {
+          // dynamic binding (recommended for web apps)
+          document.body.tipsy();
+
+          // static binding
+          // [].forEach.call(document.querySelectorAll("[title]"), function(elem) {
+          //  elem.tipsy();
+          // });
+        }, false);
         </script>
 
-Please refer to the docs directory for more examples and documentation.
+You can also set "data-gravity" attribute to "n", "ne", "e", "se", "s", "sw", "w", "nw" values for better tooltip look.
+If you don't set it tooltip's gravity will be calculated automatically.
 
 ## A note on forking:
 
 By forking this project you hereby grant permission for any commits to your fork to be
 merged back into this repository and, with attribution, be released under the terms of
 the MIT License.
-
-##
-
-https://developer.mozilla.org/en/DOM/element.dataset - fx6, opera 11
-https://developer.mozilla.org/en/DOM/element.classList - fx4, opera 11.50
